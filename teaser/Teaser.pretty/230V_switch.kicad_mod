@@ -1,0 +1,98 @@
+(footprint "230V_switch"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 3 2 0)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "107e19f3-5856-4442-af87-81db793cb337")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+		)
+	)
+	(property "Value" "230V_switch"
+		(at 3 3.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "ab8e2d6d-57a8-412c-b957-b9d606a37c6d")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at 3 2.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "9b9ab7dd-bdef-44bf-a9d0-da2169768fad")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 3 2.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "058da4b8-3b9e-4966-9f4e-2741ab1aee5c")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 3 2.5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "f097c1d1-e8d4-4b1e-91bf-fb4715191b33")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole)
+	(fp_text user "${REFERENCE}"
+		(at 3 5 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "f55ed79a-73f8-453e-a943-07313a77b549")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole circle
+		(at 0 0)
+		(size 2 2)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "714ea5d3-e4fe-4ab4-b3cd-3d5f02972152")
+	)
+	(pad "2" thru_hole circle
+		(at 5 0)
+		(size 2 2)
+		(drill 1.2)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(uuid "01411b42-6693-427d-850b-a516be74f2e8")
+	)
+)
