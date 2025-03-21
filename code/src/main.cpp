@@ -23,6 +23,7 @@
 #define BIG_CHAR_HEIGHT 12
 #define LONG_PRESS_DELAY 800
 #define MIN_ACCEPTED_CHARGE 5 //%
+#define RELAY_SWITCHING_TIME 10 //ms
 
 // Button interrupt flag
 volatile bool buttonPressed = false;
@@ -203,8 +204,14 @@ void update_display(){
 
 
 void no_charge_message(){
-
-
+    update_display();
+    char str[] = "NO CHARGE";
+    
+    // Draw black rect in with display text
+    display.fillRect(0, 8+BIG_CHAR_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT - 2*(8+BIG_CHAR_HEIGHT), BLACK);
+    display.setCursor(calcStrPosX(str, 1, 2), (SCREEN_HEIGHT+BIG_CHAR_HEIGHT)/2);
+    display.print(str);
+    display.display(); 
 
     delay(1000);
     update_display();
@@ -230,7 +237,15 @@ bool find_valid_cycle(){
 
 
 void take_measure(){
+    delay(2*RELAY_SWITCHING_TIME);          // Just to be sure no voltage or current spike form closing realys goes onto microcontroller 
+    digitalWrite(MEASURE_PERMIT_PIN, HIGH);
+    delay(RELAY_SWITCHING_TIME);
 
+    channel[0].charge = map(analogRead(CH1_MEASURE_PIN), 0, 1023, 0, 100);
+    channel[1].charge = map(analogRead(CH2_MEASURE_PIN), 0, 1023, 0, 100);
+    channel[2].charge = map(analogRead(CH3_MEASURE_PIN), 0, 1023, 0, 100);
+
+    digitalWrite(MEASURE_PERMIT_PIN, LOW);
 }
 
 
@@ -245,18 +260,18 @@ void setup(){
         for(;;){}; 
     }
 
-    pinMode(CH1_MEASURE_PIN, OUTPUT);
-    pinMode(CH2_MEASURE_PIN, OUTPUT);
-    pinMode(CH3_MEASURE_PIN, OUTPUT);
-    pinMode(CH1_ACTIVATE_PIN, INPUT);
-    pinMode(CH2_ACTIVATE_PIN, INPUT);
-    pinMode(CH3_ACTIVATE_PIN, INPUT);
+    pinMode(CH1_MEASURE_PIN, INPUT);
+    pinMode(CH2_MEASURE_PIN, INPUT);
+    pinMode(CH3_MEASURE_PIN, INPUT);
+    pinMode(CH1_ACTIVATE_PIN, OUTPUT);
+    pinMode(CH2_ACTIVATE_PIN, OUTPUT);
+    pinMode(CH3_ACTIVATE_PIN, OUTPUT);
     pinMode(MEASURE_PERMIT_PIN, OUTPUT);
     pinMode(BUTTON_PIN, INPUT);
 
-    digitalWrite(CH1_MEASURE_PIN, LOW);
-    digitalWrite(CH2_MEASURE_PIN, LOW);
-    digitalWrite(CH3_MEASURE_PIN, LOW);
+    digitalWrite(CH1_ACTIVATE_PIN, LOW);
+    digitalWrite(CH2_ACTIVATE_PIN, LOW);
+    digitalWrite(CH3_ACTIVATE_PIN, LOW);
     digitalWrite(MEASURE_PERMIT_PIN, LOW);
 
     attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), buttonISR, RISING);
@@ -275,14 +290,23 @@ void loop() {
             if(channel[1].selected) digitalWrite(CH2_ACTIVATE_PIN, HIGH);
             if(channel[2].selected) digitalWrite(CH3_ACTIVATE_PIN, HIGH);
             activated = true;
+
             update_display();
 
             while(digitalRead(BUTTON_PIN) == HIGH){} // Wait untill button is unpressed
 
+            activated = false;
+            digitalWrite(CH1_ACTIVATE_PIN, LOW);
+            digitalWrite(CH2_ACTIVATE_PIN, LOW);
+            digitalWrite(CH3_ACTIVATE_PIN, LOW);
+
             take_measure();
             update_display();
             buttonPressed = false;
+
+        // Short press 
         } else if(digitalRead(BUTTON_PIN) == LOW){  // If button was unpressed before LONG_PRESS_DEALY passed then it is short press
+
             // If no channel are charged display "NO CHARGE" message
             if(channel[0].value < MIN_ACCEPTED_CHARGE &&
                channel[1].value < MIN_ACCEPTED_CHARGE &&
@@ -290,16 +314,15 @@ void loop() {
                 no_charge_message();
             } else {
                 // Cycle through valid options, if found one then select channels according to it
-                while(find_valid_cycle() == false){
-                    channel[0].selected = channel_cycle[curr_channel_cycle][0];
-                    channel[1].selected = channel_cycle[curr_channel_cycle][1];
-                    channel[2].selected = channel_cycle[curr_channel_cycle][2];
-                }
+                while(find_valid_cycle() == false){}
+                
+                channel[0].selected = channel_cycle[curr_channel_cycle][0];
+                channel[1].selected = channel_cycle[curr_channel_cycle][1];
+                channel[2].selected = channel_cycle[curr_channel_cycle][2];
+
+                update_display();
             }
         }
         
     }
-
-
-    // Short press 
 }
